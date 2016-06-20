@@ -232,4 +232,4 @@ function getOrigin() {
 }
 
 module.exports = VPAIDHTML5Client;
-
+window.VPAIDHTML5Client = VPAIDHTML5Client;
