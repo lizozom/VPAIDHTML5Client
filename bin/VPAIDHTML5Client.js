@@ -323,6 +323,7 @@ function VPAIDAdUnit(VPAIDCreative, el, video, iframe) {
         this._videoEl = video;
         this._iframe = iframe;
         this._subscribers = new Subscriber();
+        utils.setFullSizeStyle(el);
         $addEventsSubscribers.call(this);
     }
 }
@@ -624,8 +625,13 @@ VPAIDHTML5Client.prototype.loadAdUnit = function loadAdUnit(adURL, callback) {
         /*jshint validthis: false */
         //don't clear timeout
         if (e.origin !== getOrigin()) return;
-        var result = JSON.parse(e.data);
+        var result;
 
+        try {
+            result = JSON.parse(e.data);
+        } catch (e) {
+            return;
+        }
         //don't clear timeout
         if (result.id !== that.getID()) return;
 
@@ -642,7 +648,6 @@ VPAIDHTML5Client.prototype.loadAdUnit = function loadAdUnit(adURL, callback) {
         if (!error) {
             var adEl = that._frame.contentWindow.document.querySelector('.ad-element');
             adUnit = new VPAIDAdUnit(createAd(), adEl, that._videoEl, that._frame);
-            adUnit.subscribe(AD_STOPPED, $adDestroyed.bind(that));
             error = utils.validate(adUnit.isValidVPAIDAd(), 'the add is not fully complaint with VPAID specification');
         }
 
@@ -747,7 +752,6 @@ function getOrigin() {
 }
 
 module.exports = VPAIDHTML5Client;
-window.VPAIDHTML5Client = VPAIDHTML5Client;
 
 
 },{"./VPAIDAdUnit":2,"./utils":5}],4:[function(require,module,exports){
@@ -896,7 +900,7 @@ function createElementInEl(parent, tagName, id) {
  * @param {object} data
  */
 function createIframeWithContent(parent, template, data) {
-    var iframe = createIframe(parent);
+    var iframe = createIframe(parent, null, data.zIndex);
     if (!setIframeContent(iframe, simpleTemplate(template, data))) return;
     return iframe;
 }
@@ -907,7 +911,7 @@ function createIframeWithContent(parent, template, data) {
  * @param {HTMLElement} parent
  * @param {string} url
  */
-function createIframe(parent, url) {
+function createIframe(parent, url, zIndex) {
     var nEl = document.createElement('iframe');
     nEl.src = url || 'about:blank';
     nEl.marginWidth = '0';
@@ -915,16 +919,27 @@ function createIframe(parent, url) {
     nEl.frameBorder = '0';
     nEl.width = '100%';
     nEl.height = '100%';
-    nEl.style.position = 'absolute';
-    nEl.style.left = '0';
-    nEl.style.top = '0';
-    nEl.style.margin = '0px';
-    nEl.style.padding = '0px';
-    nEl.style.border = 'none';
+    setFullSizeStyle(nEl);
+
+    if(zIndex){
+        nEl.style.zIndex = zIndex;
+    }
+
     nEl.setAttribute('SCROLLING','NO');
     parent.innerHTML = '';
     parent.appendChild(nEl);
     return nEl;
+}
+
+function setFullSizeStyle(element) {
+    element.style.position = 'absolute';
+    element.style.left = '0';
+    element.style.top = '0';
+    element.style.margin = '0px';
+    element.style.padding = '0px';
+    element.style.border = 'none';
+    element.style.width = '100%';
+    element.style.height = '100%';
 }
 
 /**
@@ -991,6 +1006,7 @@ module.exports = {
     createElementInEl: createElementInEl,
     createIframeWithContent: createIframeWithContent,
     createIframe: createIframe,
+    setFullSizeStyle: setFullSizeStyle,
     simpleTemplate: simpleTemplate,
     setIframeContent: setIframeContent,
     extend: extend,

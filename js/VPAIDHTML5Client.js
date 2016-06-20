@@ -105,8 +105,13 @@ VPAIDHTML5Client.prototype.loadAdUnit = function loadAdUnit(adURL, callback) {
         /*jshint validthis: false */
         //don't clear timeout
         if (e.origin !== getOrigin()) return;
-        var result = JSON.parse(e.data);
+        var result;
 
+        try {
+            result = JSON.parse(e.data);
+        } catch (e) {
+            return;
+        }
         //don't clear timeout
         if (result.id !== that.getID()) return;
 
@@ -123,7 +128,6 @@ VPAIDHTML5Client.prototype.loadAdUnit = function loadAdUnit(adURL, callback) {
         if (!error) {
             var adEl = that._frame.contentWindow.document.querySelector('.ad-element');
             adUnit = new VPAIDAdUnit(createAd(), adEl, that._videoEl, that._frame);
-            adUnit.subscribe(AD_STOPPED, $adDestroyed.bind(that));
             error = utils.validate(adUnit.isValidVPAIDAd(), 'the add is not fully complaint with VPAID specification');
         }
 
