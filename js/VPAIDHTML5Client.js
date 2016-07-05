@@ -10,7 +10,7 @@ var defaultTemplate = '<!DOCTYPE html>' +
     '<body style="margin:0;padding:0"><div class="ad-element"></div>' +
     '<script type="text/javascript" src="{{iframeURL_JS}}"></script>' +
     '<script type="text/javascript">' +
-    'window.parent.postMessage(\'{"event": "ready", "id": "{{iframeID}}"}\', \'{{origin}}\');' +
+    'window.parent.postMessage(\'{"event": "ready", "id": "{{iframeID}}", "vendor": "isvid"}\', \'*\');' +
     '</script>' +
     '</body>' +
     '</html>';
@@ -104,7 +104,7 @@ VPAIDHTML5Client.prototype.loadAdUnit = function loadAdUnit(adURL, callback) {
     function onLoad (e) {
         /*jshint validthis: false */
         //don't clear timeout
-        if (e.origin !== getOrigin()) return;
+        //if (e.origin !== getOrigin()) return;
         var result;
 
         try {
@@ -113,7 +113,7 @@ VPAIDHTML5Client.prototype.loadAdUnit = function loadAdUnit(adURL, callback) {
             return;
         }
         //don't clear timeout
-        if (result.id !== that.getID()) return;
+        if (result.vendor !== 'isvid' || result.id !== that.getID()) return;
 
         var adUnit, error, createAd;
         if (!that._frame.contentWindow) {
